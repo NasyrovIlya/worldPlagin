@@ -1,0 +1,49 @@
+// {
+//   "compilerOptions": {
+//     "allowJs": true,
+//     "baseUrl": ".",
+//     "esModuleInterop": true,
+//     "experimentalDecorators": true,
+//     "jsx": "react",
+//     "noEmitOnError": true,
+//     "outDir": "lib",
+//     "sourceMap": true,
+//     "target": "ES6",
+//     "module": "NodeNext",
+//     "moduleResolution": "NodeNext",
+//     "paths": {
+//       "*": ["src/*", "node_modules/*"]
+//     },
+//     "lib": [
+//       "es2015",
+//       "dom"
+//     ]
+//   },
+//   "exclude": [
+//     "node_modules",
+//     "dist",
+//     "lib",
+//     "lib-amd"
+//   ],
+//   "ts-node": { 
+//     "files": true 
+//   }
+// }
+
+{
+  "extends": "@tsconfig/svelte/tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "target": "ES2022"
+  },
+  "include": [
+    "src/**/*.d.ts",
+    "src/**/*.ts",
+    "src/**/*.js",
+    "src/**/*.svelte"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+  ]
+}
