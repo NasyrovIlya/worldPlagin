@@ -54,6 +54,16 @@
     <div class="label" class:white-text={level >= 67} on:click={onClickItem}>
       {appItem.name}
       {getTypeItem()}
+      {#if appItem instanceof Field && appItem._modificators.length > 0}
+        {@const modItems =
+          appItem instanceof Field && appItem._modificators.length > 0
+            ? appItem._modificators.map((item) => item.name).join(", ")
+            : ""}
+        <span class="modificators"> {modItems}</span>
+        <!-- {#each appItem._modificators as mod, index (index)}
+          <div class="modificators">{mod.name}</div>
+        {/each} -->
+      {/if}
     </div>
 
     {#if appItem instanceof AppItemClass === false}
@@ -107,5 +117,8 @@
   }
   .white-text {
     color: white;
+  }
+  .modificators {
+    font-style: italic;
   }
 </style>

@@ -1,10 +1,10 @@
 import { get } from "svelte/store";
 import { globalStore, isLoad } from "../SvelteComp/Helper/global";
 
-import type { ArrayClasses, IAppItems, TypesFields } from "../SvelteComp/types/interfaces";
+import type { ArrayClasses, IAppItems, IModifier, TypesFields } from "../SvelteComp/types/interfaces";
 
 import AppItemClass from "./AppItemClass";
-import { getClassItemFromField, parseNsAppString } from "../SvelteComp/Helper/helper";
+import { getClassItemFromField, parseNsAppString, replaceFirstOccurrence } from "../SvelteComp/Helper/helper";
 
 export default class Field {
   id: string = "";
@@ -15,6 +15,7 @@ export default class Field {
   context: any;
   _checked: boolean = false;
   _path: string = "";
+  _modificators: IModifier[] = [];
 
   constructor(id: string, name: string, type: TypesFields, single: boolean, parent: AppItemClass, context: any) {
     this.id = id;
@@ -73,7 +74,10 @@ export default class Field {
   // возвращает строку пути до поля, с прохождением всех родителей
   getSampleString(onlyPath: boolean = false, isAllPath: boolean = true): string {
     let result = this.id;
+    let resultString: string = "";
     let parent: AppItemClass | undefined = this.parent;
+    let modificatorsItems: string[] = [];
+    let modificatorsString: string = "";
     const path: string[] = [];
 
     while (parent) {
@@ -94,10 +98,47 @@ export default class Field {
 
     path.push(this.id);
 
+    if (this._modificators.length > 0) {
+      for (let index = 0; index < this._modificators.length; index++) {
+        const element = this._modificators[index];
+
+        if (element.static === false && element.arguments_description) {
+          const reqArguments = element.arguments_description.filter((item) => item.required && !item.value);
+
+          if (reqArguments.length > 0) {
+            continue;
+          }
+
+          let argumentValues: string = element.id;
+          const shablon = element.arguments_description.map((item) => `'${item.name}'`).join(", ");
+
+          modificatorsItems.push(
+            replaceFirstOccurrence(
+              shablon,
+              argumentValues,
+              element.arguments_description
+                .filter((item) => item.value)
+                .map((item) => `'${item.value}'`)
+                .join(", ")
+            )
+          );
+        } else {
+          modificatorsItems.push(element.id);
+        }
+      }
+    }
+
+    modificatorsString = modificatorsItems.join("|");
+    resultString = `${path.join(".")}${modificatorsString ? `|${modificatorsString}` : ``}`;
+
     if (isAllPath) {
-      return onlyPath ? path.join(".") : `{{ ${path.join(".")} }}`;
+      resultString = `${path.join(".")}${modificatorsString ? `|${modificatorsString}` : ``}`;
+
+      return onlyPath ? resultString : `{{ ${resultString} }}`;
     } else {
-      return onlyPath ? path.splice(1).join(".") : `{{ ${path.splice(1).join(".")} }}`;
+      resultString = `${path.splice(1).join(".")}${modificatorsString ? `|${modificatorsString}` : ``}`;
+
+      return onlyPath ? resultString : `{{ ${resultString} }}`;
     }
 
     // if (onlyPath) {

@@ -10,7 +10,7 @@
   <HighResolutionIconUrl DefaultValue="https://github.com/NasyrovIlya/worldPlagin/tree/9925ba56ad8c708f0e62bf8c5cef9106d48f17fd/assets/icon-64.png"/>
   <SupportUrl DefaultValue="https://www.contoso.com/help"/>
   <AppDomains>
-    <AppDomain>https://www.contoso.com</AppDomain>
+    <AppDomain>https://github.com/NasyrovIlya/worldPlagin/tree/9925ba56ad8c708f0e62bf8c5cef9106d48f17fd</AppDomain>
   </AppDomains>
   <Hosts>
     <Host Name="Document"/>

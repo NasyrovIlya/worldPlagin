@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
 
   import type { IConditions } from "../../types/interfaces";
   import AppItemClass from "../../../classes/AppItemClass";
   import ConditionClass from "../../../classes/ConditionClass";
 
-  import { insertText, loadSimulattion } from "../../Helper/helper";
+  import { insertText, loadSimulattion, scrollToElementById } from "../../Helper/helper";
   import { betweenConditions } from "../../Helper/const";
 
   import ConditionItem from "./ConditionItem.svelte";
@@ -43,6 +43,20 @@
     conditionsFromMainApp = ConditionClass.conditions.filter((item) => item.mainApp.id === mainApp.id);
 
     loadSimulattion(300);
+  });
+
+  onDestroy(() => {
+    console.log();
+
+    if (conditionsFromMainApp.length > 0) {
+      const test = conditionsFromMainApp[conditionsFromMainApp.length - 1];
+
+      if (test.conditions.length > 0) {
+        const test2 = test.conditions[test.conditions.length - 1];
+
+        scrollToElementById(`${test2.field?.getSource()}.${test2.field?.id}`);
+      }
+    }
   });
 </script>
 

@@ -26,8 +26,11 @@
   function genModifierString(index: any) {
     if (modifiers[index].static === false && modifiers[index].arguments_description) {
       modifiers[index].showArguments = !modifiers[index].showArguments;
+
+      modifiers = modifiers;
     } else {
-      insertText(`{{ ${field?.getSampleString(true)}|${modifiers[index].id} }}`);
+      field?._modificators.push(modifiers[index]);
+      // insertText(`{{ ${field?.getSampleString(true)}|${modifiers[index].id} }}`);
     }
   }
 
@@ -48,30 +51,46 @@
   }
 
   function applyMod(modic: IModifier) {
-    const reqArguments = modic.arguments_description.filter((item) => item.required && !item.value);
+    field?._modificators.push(modic);
+    // const reqArguments = modic.arguments_description.filter((item) => item.required && !item.value);
 
-    if (reqArguments.length > 0) {
-      return;
-    }
+    // if (reqArguments.length > 0) {
+    //   return;
+    // }
 
-    let argumentValues: string = modic.id;
-    const shablon = modic.arguments_description.map((item) => `'${item.name}'`).join(", ");
+    // let argumentValues: string = modic.id;
+    // const shablon = modic.arguments_description.map((item) => `'${item.name}'`).join(", ");
 
-    argumentValues = replaceFirstOccurrence(
-      shablon,
-      argumentValues,
-      modic.arguments_description
-        .filter((item) => item.value)
-        .map((item) => `'${item.value}'`)
-        .join(", ")
-    );
+    // argumentValues = replaceFirstOccurrence(
+    //   shablon,
+    //   argumentValues,
+    //   modic.arguments_description
+    //     .filter((item) => item.value)
+    //     .map((item) => `'${item.value}'`)
+    //     .join(", ")
+    // );
 
-    insertText(`{{ ${field?.getSampleString(true)}|${argumentValues} }}`);
+    // insertText(`{{ ${field?.getSampleString(true)}|${argumentValues} }}`);
   }
 
   onMount(async () => {
     await getModifiers();
     convertMidifierObject();
+
+    if (field && field._modificators.length > 0) {
+      for (let index = 0; index < field._modificators.length; index++) {
+        const element = field._modificators[index];
+        let searchItem = modifiers.find((item) => item.id === element.id);
+
+        if (searchItem) {
+          searchItem = { ...element };
+          searchItem.showArguments = true;
+        }
+      }
+      console.log(modifiers);
+      
+      modifiers = modifiers;
+    }
 
     scrollToElementById(`modifiers-body-id`);
   });
@@ -126,15 +145,6 @@
               {/if}
             </div>
           {/if}
-          <!-- <div class="item__arguments_description">
-            {#if modifier.arguments_description?.length > 0}
-              {#each modifier.arguments_description as arguments_description, idx (idx)}
-                <div class="arguments_description_body">
-                  {arguments_description.name}
-                </div>
-              {/each}
-            {/if}
-          </div> -->
         </div>
       {/each}
     {/if}

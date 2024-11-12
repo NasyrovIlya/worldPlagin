@@ -18,7 +18,7 @@ export interface INameSpaceItems {
   isOpen?: boolean;
 }
 
-type TypesFields =
+export type TypesFields =
   | "STRING"
   | "ENUM"
   | "SYS_COLLECTION"
