@@ -71,32 +71,9 @@ export default class Field {
     return result;
   }
 
-  // возвращает строку пути до поля, с прохождением всех родителей
-  getSampleString(onlyPath: boolean = false, isAllPath: boolean = true): string {
-    let result = this.id;
-    let resultString: string = "";
-    let parent: AppItemClass | undefined = this.parent;
+  getModificatorStrings(): string {
+    let result: string = "";
     let modificatorsItems: string[] = [];
-    let modificatorsString: string = "";
-    const path: string[] = [];
-
-    while (parent) {
-      if (parent) {
-        const checkId = parseNsAppString(parent.id);
-
-        if (Array.isArray(checkId)) {
-          result = `${checkId[2]}.${result}`;
-          path.unshift(checkId[2]);
-        } else {
-          result = `${parent.id}.${result}`;
-          path.unshift(parent.id);
-        }
-      }
-
-      parent = parent.parent;
-    }
-
-    path.push(this.id);
 
     if (this._modificators.length > 0) {
       for (let index = 0; index < this._modificators.length; index++) {
@@ -128,7 +105,40 @@ export default class Field {
       }
     }
 
-    modificatorsString = modificatorsItems.join("|");
+    if (modificatorsItems.length > 0) {
+      result = `${modificatorsItems.join("|")}`;
+    }
+
+    return result;
+  }
+
+  // возвращает строку пути до поля, с прохождением всех родителей
+  getSampleString(onlyPath: boolean = false, isAllPath: boolean = true): string {
+    let result = this.id;
+    let resultString: string = "";
+    let parent: AppItemClass | undefined = this.parent;
+    let modificatorsString: string = "";
+    const path: string[] = [];
+
+    while (parent) {
+      if (parent) {
+        const checkId = parseNsAppString(parent.id);
+
+        if (Array.isArray(checkId)) {
+          result = `${checkId[2]}.${result}`;
+          path.unshift(checkId[2]);
+        } else {
+          result = `${parent.id}.${result}`;
+          path.unshift(parent.id);
+        }
+      }
+
+      parent = parent.parent;
+    }
+
+    path.push(this.id);
+
+    modificatorsString = this.getModificatorStrings();
     resultString = `${path.join(".")}${modificatorsString ? `|${modificatorsString}` : ``}`;
 
     if (isAllPath) {

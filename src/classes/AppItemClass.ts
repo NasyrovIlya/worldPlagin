@@ -219,7 +219,7 @@ export default class AppItemClass {
       } else {
         result = ` 
             {% for ${appId} in ${source}.${appId} %}
-              ${items.map((item) => `{{ ${appId}.${item.getId()} }}`).join(" ")}
+              ${items.map((item) => `{{ ${appId}.${item.getId()}${item instanceof Field ? `|${item.getModificatorStrings()}` : ``} }}`).join(" ")}
               ${openAppItems.map((app) => app.getStringForApp()).join(" ")}
             {% endfor %}`;
       }

@@ -51,6 +51,8 @@
   }
 
   function applyMod(modic: IModifier) {
+    //TODO добавить функционал удаления модификатора из поля
+    // добавить получение строки модификаторов при цикличном вводе полей
     field?._modificators.push(modic);
     // const reqArguments = modic.arguments_description.filter((item) => item.required && !item.value);
 

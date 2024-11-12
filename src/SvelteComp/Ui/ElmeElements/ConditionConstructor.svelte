@@ -46,8 +46,6 @@
   });
 
   onDestroy(() => {
-    console.log();
-
     if (conditionsFromMainApp.length > 0) {
       const test = conditionsFromMainApp[conditionsFromMainApp.length - 1];
 
