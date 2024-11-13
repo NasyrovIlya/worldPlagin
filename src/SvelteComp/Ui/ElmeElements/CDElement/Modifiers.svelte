@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { onDestroy, onMount } from "svelte";
+  import { onDestroy, onMount, tick } from "svelte";
 
   import type { IMenuItems, IModifier } from "../../../types/interfaces";
   import { fieldModifier, modifiersResp } from "../../../Helper/global";
-  import { getModifiers, insertText, replaceFirstOccurrence, scrollToElementById } from "../../../Helper/helper";
+  import { fieldTypeDictionary, getModifiers, loadSimulattion, scrollToElementById } from "../../../Helper/helper";
 
   import Field from "../../../../classes/FieldClass";
 
@@ -23,79 +23,74 @@
     },
   ];
 
+  function triggerModificatord() {
+    modifiers = modifiers;
+    loadSimulattion(300);
+  }
+
   function genModifierString(index: any) {
     if (modifiers[index].static === false && modifiers[index].arguments_description) {
       modifiers[index].showArguments = !modifiers[index].showArguments;
 
       modifiers = modifiers;
     } else {
-      field?._modificators.push(modifiers[index]);
-      // insertText(`{{ ${field?.getSampleString(true)}|${modifiers[index].id} }}`);
+      applyMod(modifiers[index]);
     }
   }
 
   function convertMidifierObject() {
     if ($modifiersResp && Object.keys($modifiersResp)?.length > 0) {
-      modifiers = Object.keys($modifiersResp)
-        .map((item) => ({
-          id: item,
-          name: $modifiersResp[item].name,
-          arguments_description: $modifiersResp[item].arguments_description,
-          modifier_description: $modifiersResp[item].modifier_description,
-          usage_example: $modifiersResp[item].usage_example,
-          static: $modifiersResp[item].static,
-          showArguments: false,
-        }))
-        .sort((item, items) => item.static - items.static);
+      modifiers = [
+        ...Object.keys($modifiersResp)
+          .map((item) => ({
+            id: item,
+            name: $modifiersResp[item].name,
+            arguments_description: $modifiersResp[item].arguments_description,
+            modifier_description: $modifiersResp[item].modifier_description,
+            usage_example: $modifiersResp[item].usage_example,
+            static: $modifiersResp[item].static,
+            showArguments: field?._modificators?.find((mod) => mod.id === item)?.showArguments
+              ? field?._modificators?.find((mod) => mod.id === item)?.showArguments
+              : false,
+          }))
+          .sort((item, items) => item.static - items.static),
+      ];
     }
   }
 
   function applyMod(modic: IModifier) {
-    //TODO добавить функционал удаления модификатора из поля
-    // добавить получение строки модификаторов при цикличном вводе полей
-    field?._modificators.push(modic);
-    // const reqArguments = modic.arguments_description.filter((item) => item.required && !item.value);
+    let modInField = field?._modificators.find((item) => item.id === modic.id);
 
-    // if (reqArguments.length > 0) {
-    //   return;
-    // }
+    if (modInField) {
+      modInField = { ...modic };
+    } else {
+      field?._modificators.push(modic);
+      modic.showArguments = false;
+    }
 
-    // let argumentValues: string = modic.id;
-    // const shablon = modic.arguments_description.map((item) => `'${item.name}'`).join(", ");
-
-    // argumentValues = replaceFirstOccurrence(
-    //   shablon,
-    //   argumentValues,
-    //   modic.arguments_description
-    //     .filter((item) => item.value)
-    //     .map((item) => `'${item.value}'`)
-    //     .join(", ")
-    // );
-
-    // insertText(`{{ ${field?.getSampleString(true)}|${argumentValues} }}`);
+    triggerModificatord();
   }
 
   onMount(async () => {
     await getModifiers();
     convertMidifierObject();
 
-    if (field && field._modificators.length > 0) {
-      for (let index = 0; index < field._modificators.length; index++) {
-        const element = field._modificators[index];
-        let searchItem = modifiers.find((item) => item.id === element.id);
-
-        if (searchItem) {
-          searchItem = { ...element };
-          searchItem.showArguments = true;
-        }
-      }
-      console.log(modifiers);
-      
-      modifiers = modifiers;
-    }
-
     scrollToElementById(`modifiers-body-id`);
   });
+
+  function closeForm() {
+    isShow = false;
+  }
+
+  function delMod(modifier: IModifier) {
+    modifier.showArguments = false;
+    modifier.arguments_description?.forEach((arg) => {
+      arg.value = "";
+    });
+    field!._modificators = [...field!._modificators.filter((_) => _.id !== modifier.id)];
+
+    triggerModificatord();
+  }
 
   onDestroy(() => {
     $fieldModifier = undefined;
@@ -110,13 +105,15 @@
   <div class="modifiers-body" id="modifiers-body-id">
     {#if field}
       <div class="item__name" style="margin-bottom: 10px;">Для поля: {field.name}</div>
-      <Button caption="Назад" clickHandler={() => (isShow = false)} style="margin-bottom: 10px;" />
+      <Button caption="Назад" clickHandler={closeForm} style="margin-bottom: 10px;" />
     {/if}
     {#if modifiers.length > 0}
       {#each modifiers as modifier, index (index)}
         <div class="mod-item-body">
           <div class="item__name-body">
-            <div class="item__name">{modifier.name} ({modifier.id})</div>
+            <div class="item__name">
+              {modifier.name} ({modifier.id})
+            </div>
             {#if field}
               <MenuBurger {menuItems} arg={index} />
             {/if}
@@ -133,7 +130,7 @@
             <div class="item__name" style="margin-right: 5px;">{modifier.static ? "Статичный" : "Динамичный"}</div>
           </div>
 
-          {#if modifier.showArguments && modifier.static === false}
+          {#if modifier.showArguments === true && modifier.static === false}
             <div class="item__arguments_description">
               {#if modifier.arguments_description?.length > 0}
                 {#each modifier.arguments_description as argument, idx (idx)}
@@ -145,6 +142,11 @@
                 <!-- {:else}
                  -->
               {/if}
+            </div>
+          {/if}
+          {#if field?._modificators?.find((item) => item.id === modifier.id)}
+            <div class="control-button" style="margin-top: 5px; margin-botton: 5px">
+              <Button caption="Удалить модификатор" clickHandler={() => delMod(modifier)} />
             </div>
           {/if}
         </div>

@@ -26,10 +26,6 @@ export default class Field {
     this.context = context;
   }
 
-  async getChildFields(): Promise<Field[]> {
-    return [];
-  }
-
   static async getFieldsFromApp(ns: string, app: string, owner: AppItemClass): Promise<ArrayClasses> {
     function filterObjects(array: any) {
       const arrayFilter = array.filter(
