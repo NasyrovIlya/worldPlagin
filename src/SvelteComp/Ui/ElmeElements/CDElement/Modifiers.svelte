@@ -3,7 +3,7 @@
 
   import type { IMenuItems, IModifier } from "../../../types/interfaces";
   import { fieldModifier, modifiersResp } from "../../../Helper/global";
-  import { fieldTypeDictionary, getModifiers, loadSimulattion, scrollToElementById } from "../../../Helper/helper";
+  import { getModifiers, loadSimulattion, scrollToElementById } from "../../../Helper/helper";
 
   import Field from "../../../../classes/FieldClass";
 
