@@ -42,7 +42,7 @@
     if ($modifiersResp && Object.keys($modifiersResp)?.length > 0) {
       modifiers = [
         ...Object.keys($modifiersResp)
-          .map((item) => ({
+          .map((item: string) => ({
             id: item,
             name: $modifiersResp[item].name,
             arguments_description: $modifiersResp[item].arguments_description,

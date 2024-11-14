@@ -55,8 +55,6 @@ export default class ConditionClass {
   }
 
   static async getConditionString(mainApp: AppItemClass): Promise<string> {
-    console.log(ConditionClass.validateConditions(mainApp));
-
     let result: string = "";
     const conditions = ConditionClass.conditions.filter((item) => item.mainApp.id === mainApp.id);
 
@@ -79,7 +77,6 @@ export default class ConditionClass {
     }
 
     result = `{% if ${result} %}Введите необходимый текст{% endif %}`;
-    console.log(result);
 
     return result;
   }

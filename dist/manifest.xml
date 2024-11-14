@@ -10,7 +10,7 @@
   <HighResolutionIconUrl DefaultValue="https://nasyrovilya.github.io/worldPlagin/dist/assets/icon-64.png"/>
   <SupportUrl DefaultValue="https://nasyrovilya.github.io/worldPlagin/dist/help"/>
   <AppDomains>
-    <AppDomain>https://nasyrovilya.github.io/worldPlagin/dist//AppDomain>
+    <AppDomain>https://nasyrovilya.github.io/worldPlagin/dist</AppDomain>
   </AppDomains>
   <Hosts>
     <Host Name="Document"/>
@@ -74,7 +74,7 @@
       <bt:ShortStrings>
         <bt:String id="GetStarted.Title" DefaultValue="Get started with your sample add-in!"/>
         <bt:String id="CommandsGroup.Label" DefaultValue="Commands Group"/>
-        <bt:String id="TaskpaneButton.Label" DefaultValue="Моя Тестовая доработка"/>
+        <bt:String id="TaskpaneButton.Label" DefaultValue="Генератор Шаблонных строк ЦД"/>
       </bt:ShortStrings>
       <bt:LongStrings>
         <bt:String id="GetStarted.Description" DefaultValue="Your sample add-in loaded succesfully. Go to the HOME tab and click the 'Show Taskpane' button to get started."/>

@@ -94,7 +94,16 @@ export default class ConditionItemClass {
 
   getConditionObject(): IConditionObject {
     const condition = this.condition;
-    const fieldPath = this.field?.getSampleString(true, false);
+    let fieldPath = "";
+
+    if (this.field) {
+      if (this.field.isParentSingle()) {
+        fieldPath = this.field.getSampleString(true, false, false);
+      } else {
+        fieldPath = `${this.field.parent.getId()}.${this.field.getId()}`;
+      }
+    }
+
     let conditionIcon: string = "";
     let conditionString: string = "";
     let value = `"${this.value}"`;

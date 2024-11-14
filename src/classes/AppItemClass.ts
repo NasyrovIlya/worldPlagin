@@ -219,7 +219,7 @@ export default class AppItemClass {
       } else {
         result = ` 
             {% for ${appId} in ${source}.${appId} %}
-              ${items.map((item) => `{{ ${appId}.${item.getId()}${item instanceof Field ? `|${item.getModificatorStrings()}` : ``} }}`).join(" ")}
+              ${items.map((item) => `{{ ${appId}.${item.getId()}${item instanceof Field ? `${item.getModificatorStrings()}` : ``} }}`).join(" ")}
               ${openAppItems.map((app) => app.getStringForApp()).join(" ")}
             {% endfor %}`;
       }
@@ -233,94 +233,56 @@ export default class AppItemClass {
 
     if (this.entity === "elma") {
       const mainParent = this.getPathToMain();
-
-      // let source: string = "";
-      // let countFor: number = 0;
+      console.log(mainParent);
 
       result = mainParent[1].getStringForApp();
-
-      //   for (let index = 1; index < mainParent.length; index++) {
-      //     const element = mainParent[index];
-      //     const elementId = element.getId();
-
-      //     if (source) {
-      //       source = `${source}.${elementId}`;
-      //     } else {
-      //       source = elementId;
-      //     }
-
-      //     if (element.single === false) {
-      //       result = `${result} 
-      //         {% for ${elementId} in ${source} %}
-      //           ${element.items
-      //           .filter((item) => item._checked)
-      //           .map((item) => `{{ ${elementId}.${item.getId()} }}`)
-      //           .join(" ")}
-      //         `;
-      //       source = elementId;
-      //       countFor += 1;
-      //     } else {
-      //       if (element.items.filter((item) => item._checked)) {
-      //         result = `${result} ${element.items
-      //           .filter((item) => item._checked)
-      //           .map((item) => `{{ ${source}.${item.getId()} }}`)
-      //           .join(" ")}`;
-      //       }
-      //     }
-      //   }
-
-      //   if (countFor > 0) {
-      //     for (let i: number = 0; i <= countFor - 1; i++) {
-      //       result = `${result} {% endfor %}`;
-      //     }
-      //   }
     }
 
     return result;
   }
 
-  getStringFor(source: string = "", searchMainParent: boolean = true): string {
-    if (searchMainParent) {
-      const mainParent = this.getPathToMain();
+  // getStringFor(source: string = "", searchMainParent: boolean = true): string {
+  //   if (searchMainParent) {
+  //     const mainParent = this.getPathToMain();
 
-      return mainParent[1].getStringFor("", false);
-    }
+  //     return mainParent[1].getStringFor("", false);
+  //   }
 
-    let result: string = "";
-    let dopField: string[] = [];
-    const mainName = source ? source : this.getSampleString();
-    const idName = this.getId();
-    const parentField = this.items.filter((item) => item._checked).map((item) => item.id);
+  //   let result: string = "";
+  //   let dopField: string[] = [];
+  //   const mainName = source ? source : this.getSampleString();
+  //   const idName = this.getId();
+  //   const parentField = this.items.filter((item) => item._checked).map((item) => item.id);
 
-    const parentApp: AppItemClass[] = this.items
-      .filter((item) => item instanceof AppItemClass)
-      .filter((item) => item.isOpen && typeOfAppItemClass.includes(item.type))
-      .filter((item) => item.items.filter((fieldItem) => fieldItem._checked));
+  //   const parentApp: AppItemClass[] = this.items
+  //     .filter((item) => item instanceof AppItemClass)
+  //     .filter((item) => item.isOpen && typeOfAppItemClass.includes(item.type))
+  //     .filter((item) => item.items.filter((fieldItem) => fieldItem._checked));
 
-    parentApp.forEach((item) => {
-      if (item.single) {
-        item.items
-          .filter((field) => field._checked)
-          .forEach((field) => {
-            const parentIdName = item.getId();
+  //   parentApp.forEach((item) => {
+  //     if (item.single) {
+  //       item.items
+  //         .filter((field) => field._checked)
+  //         .forEach((field) => {
+  //           const parentIdName = item.getId();
 
-            dopField.push(`{{ ${idName}.${parentIdName}.${field.id} }} `);
-          });
-      } else {
-        dopField.push(item.getStringFor(idName, false));
-      }
-    });
+  //           dopField.push(`{{ ${idName}.${parentIdName}.${field.id} }} `);
+  //         });
+  //     } else {
+  //       dopField.push(item.getStringFor(idName, false));
+  //     }
+  //   });
 
-    if (parentField.length > 0) {
-      result = `
-          {% for ${idName} in ${mainName}${source ? `.${idName}` : ""} %}
-        ${parentField.map((item) => `{{ ${idName}.${item} }}`).join(" ")}
-        ${dopField.map((item) => item).join(" ")}
-          {% endfor %} `;
-    }
+  //   if (parentField.length > 0) {
+  //     result = `
+  //         {% for ${idName} in ${mainName}${source ? `.${idName}` : ""} %}
+  //       ${parentField.map((item) => `{{ ${idName}.${item} }}`).join(" ")}
+  //       ${dopField.map((item) => item).join(" ")}
+  //         {% endfor %} `;
+  //   }
 
-    return result;
-  }
+  //   return result;
+  // }
 
   checkAll() {
     this.items.forEach((item) => {

@@ -102,14 +102,14 @@ export default class Field {
     }
 
     if (modificatorsItems.length > 0) {
-      result = `${modificatorsItems.join("|")}`;
+      result = `|${modificatorsItems.join("|")}`;
     }
 
     return result;
   }
 
   // возвращает строку пути до поля, с прохождением всех родителей
-  getSampleString(onlyPath: boolean = false, isAllPath: boolean = true): string {
+  getSampleString(onlyPath: boolean = false, isAllPath: boolean = true, modificators: boolean = true): string {
     let result = this.id;
     let resultString: string = "";
     let parent: AppItemClass | undefined = this.parent;
@@ -134,15 +134,16 @@ export default class Field {
 
     path.push(this.id);
 
-    modificatorsString = this.getModificatorStrings();
-    resultString = `${path.join(".")}${modificatorsString ? `|${modificatorsString}` : ``}`;
+    if (modificators) {
+      modificatorsString = this.getModificatorStrings();
+    }
 
     if (isAllPath) {
-      resultString = `${path.join(".")}${modificatorsString ? `|${modificatorsString}` : ``}`;
+      resultString = `${path.join(".")}${modificatorsString ? `${modificatorsString}` : ``}`;
 
       return onlyPath ? resultString : `{{ ${resultString} }}`;
     } else {
-      resultString = `${path.splice(1).join(".")}${modificatorsString ? `|${modificatorsString}` : ``}`;
+      resultString = `${path.splice(1).join(".")}${modificatorsString ? `${modificatorsString}` : ``}`;
 
       return onlyPath ? resultString : `{{ ${resultString} }}`;
     }
