@@ -10,11 +10,13 @@
   import MenuBurger from "../../MenuBurger.svelte";
   import Button from "../../Button.svelte";
   import Arguments from "./Arguments.svelte";
+  import Input from "../../Input.svelte";
 
   export let field: Field | undefined = $fieldModifier;
   export let isShow: boolean = true;
 
   let modifiers: IModifier[] = [];
+  let modifiersProxy: IModifier[] = [];
   let menuItems: IMenuItems[] = [
     {
       id: "apply_modifier",
@@ -23,16 +25,26 @@
     },
   ];
 
+  let searchString: string = "";
+
+  function searchModifiers() {
+    modifiersProxy = modifiers.filter((item) => item.name.toUpperCase().includes(searchString.toUpperCase()));
+  }
+
   function triggerModificatord() {
-    modifiers = modifiers;
+    modifiersProxy = [
+      ...modifiers.filter((item) => item.name.toUpperCase().includes(searchString.toUpperCase()) === false),
+      ...modifiersProxy,
+    ];
     loadSimulattion(300);
+    searchModifiers();
   }
 
   function genModifierString(index: any) {
-    if (modifiers[index].static === false && modifiers[index].arguments_description) {
-      modifiers[index].showArguments = !modifiers[index].showArguments;
+    if (modifiersProxy[index].static === false && modifiersProxy[index].arguments_description) {
+      modifiersProxy[index].showArguments = !modifiersProxy[index].showArguments;
 
-      modifiers = modifiers;
+      modifiersProxy = modifiersProxy;
     } else {
       applyMod(modifiers[index]);
     }
@@ -74,6 +86,7 @@
   onMount(async () => {
     await getModifiers();
     convertMidifierObject();
+    searchModifiers();
 
     scrollToElementById(`modifiers-body-id`);
   });
@@ -106,9 +119,12 @@
     {#if field}
       <div class="item__name" style="margin-bottom: 10px;">Для поля: {field.name}</div>
       <Button caption="Назад" clickHandler={closeForm} style="margin-bottom: 10px;" />
+      <div class="search-container">
+        <Input placeholder="Поиск модификатора..." bind:value={searchString} inputHndlr={searchModifiers} />
+      </div>
     {/if}
-    {#if modifiers.length > 0}
-      {#each modifiers as modifier, index (index)}
+    {#if modifiersProxy.length > 0}
+      {#each modifiersProxy as modifier, index (index)}
         <div class="mod-item-body">
           <div class="item__name-body">
             <div class="item__name">
