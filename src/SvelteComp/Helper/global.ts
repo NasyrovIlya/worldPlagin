@@ -12,6 +12,8 @@ export const globalStore: Writable<IGlobalStore> = writable({
   },
   amo: {
     url: "",
+    token: "",
+    id: "",
   },
   cd: {
     url: "api-centerdoc.certit.ru",

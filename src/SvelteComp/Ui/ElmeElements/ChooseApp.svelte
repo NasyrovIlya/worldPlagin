@@ -3,6 +3,7 @@
   import { constructorBurgerItem } from "../../Helper/const";
   import { insertText, loadSimulattion } from "../../Helper/helper";
   import { fieldModifier } from "../../Helper/global";
+  import type { EntityString } from "../../types/interfaces";
 
   import AppItemClass from "../../../classes/AppItemClass";
   import ConditionClass from "../../../classes/ConditionClass";
@@ -14,6 +15,8 @@
   import Search from "../../Search.svelte";
   import ConditionConstructor from "./ConditionConstructor.svelte";
   import Modifiers from "./CDElement/Modifiers.svelte";
+
+  export let system: EntityString = `elma`;
 
   let searchStringNs: string = "";
   let searchStringCode: string = "";
@@ -30,16 +33,18 @@
   let isShowModifier: boolean = false; // флаг для показа формы выбора модификаторов
 
   async function getBaseStructure() {
-    if (AppItemClass.allApps.length === 0) {
-      await AppItemClass.getBaseStructure("elma");
+    if (AppItemClass.allApps.filter((item) => item.entity === system).length === 0) {
+      await AppItemClass.getBaseStructure(system);
     }
 
-    allItems = [...AppItemClass.allApps.filter((item) => item.items?.length > 0)];
+    allItems = [...AppItemClass.allApps.filter((item) => item.items?.length > 0 && item.entity === system)];
     filterNamespace = [...allItems];
   }
 
   function searchNamespace() {
-    filterNamespace = allItems.filter((item) => item.name.toUpperCase().includes(searchStringNs.toUpperCase()));
+    filterNamespace = allItems.filter(
+      (item) => item.entity === system && item.name.toUpperCase().includes(searchStringNs.toUpperCase())
+    );
   }
 
   function searchCode() {
@@ -110,12 +115,14 @@
     return;
   }
 
-  onMount(() => {
+  onMount(async () => {
     constructorBurgerItem[1].callback = callBackFromBurger;
     constructorBurgerItem[2].callback = callBackFromBurgerModifier;
     constructorBurgerItem[0].callback = callBackFromBurgerShablon;
     codeItemSelect = undefined;
-    getBaseStructure();
+    await getBaseStructure();
+
+    console.log(AppItemClass.allApps);
   });
 </script>
 

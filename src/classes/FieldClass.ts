@@ -118,11 +118,16 @@ export default class Field {
 
     while (parent) {
       if (parent) {
-        const checkId = parseNsAppString(parent.id);
+        if (parent.entity === "elma") {
+          const checkId = parseNsAppString(parent.id);
 
-        if (Array.isArray(checkId)) {
-          result = `${checkId[2]}.${result}`;
-          path.unshift(checkId[2]);
+          if (Array.isArray(checkId)) {
+            result = `${checkId[2]}.${result}`;
+            path.unshift(checkId[2]);
+          } else {
+            result = `${parent.id}.${result}`;
+            path.unshift(parent.id);
+          }
         } else {
           result = `${parent.id}.${result}`;
           path.unshift(parent.id);
@@ -133,6 +138,10 @@ export default class Field {
     }
 
     path.push(this.id);
+
+    if (this.parent.entity === "amoCRM") {
+      path.push("value");
+    }
 
     if (modificators) {
       modificatorsString = this.getModificatorStrings();
@@ -172,7 +181,11 @@ export default class Field {
   }
 
   getId(): string {
-    return Array.isArray(parseNsAppString(this.id)) ? parseNsAppString(this.id)[2] : this.id;
+    if (this.parent?.entity === "elma") {
+      return Array.isArray(parseNsAppString(this.id)) ? parseNsAppString(this.id)[2] : this.id;
+    } else {
+      return this.id;
+    }
   }
 
   // возвращает строку пути по родителям до поля.

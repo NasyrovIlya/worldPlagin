@@ -2,7 +2,7 @@
 import { get } from "svelte/store";
 import AppItemClass from "../../classes/AppItemClass";
 import Field from "../../classes/FieldClass";
-import type { IAppItems, IResponceModifier, TConditionString, TypesFields } from "../types/interfaces";
+import type { IAppItems, ICfAmo, IResponceModifier, TConditionString, TShablonTypeAmo, TypesFields } from "../types/interfaces";
 import { dictionaryTerms } from "./const";
 import { globalStore, isLoad, modifiersResp } from "./global";
 
@@ -238,7 +238,110 @@ export function scrollToElementById(id: string): void {
 export function replaceFirstOccurrence(target: string, str: string, replacement: string): string {
   const index = str.indexOf(target);
   if (index !== -1) {
-      return str.slice(0, index) + replacement + str.slice(index + target.length);
+    return str.slice(0, index) + replacement + str.slice(index + target.length);
   }
   return str; // Возвращает str, если target не найден
+}
+
+export function convertFieldType(amoTypeField: TShablonTypeAmo): TypesFields {
+  const shalon: TShablonTypeAmo[] = [
+    "text",
+    "numeric",
+    "checkbox",
+    "select",
+    "multiselect",
+    "date",
+    "url",
+    "textarea",
+    "radiobutton",
+    "streetaddress",
+    "smart_address",
+    "birthday",
+    "legal_entity",
+    "date_time",
+    "tracking_data",
+    "file",
+    "monetary",
+  ];
+
+  if (shalon.includes(amoTypeField)) {
+    switch (amoTypeField) {
+      case "birthday":
+        return "DATETIME";
+      case "checkbox":
+        return "BOOLEAN";
+      case "date":
+        return "DATETIME";
+      case "date_time":
+        return "DATETIME";
+      case "file":
+        return "FILE";
+      case "legal_entity":
+        return "ENUM";
+      case "monetary":
+        return "MONEY";
+      case "multiselect":
+        return "ENUM";
+      case "numeric":
+        return "FLOAT";
+      case "radiobutton":
+        return "ENUM";
+      case "select":
+        return "ENUM";
+      case "smart_address":
+        return "ENUM";
+      case "streetaddress":
+        return "STRING";
+      case "text":
+        return "STRING";
+      case "textarea":
+        return "STRING";
+      case "tracking_data":
+        return "DATETIME";
+      case "url":
+        return "STRING";
+      default:
+        return "STRING";
+    }
+  } else {
+    return "STRING";
+  }
+}
+
+export async function proxyRequestToAmo(arg: any): Promise<ICfAmo[]> {
+  let result: ICfAmo[] = [];
+
+  if (arg.id && arg.url && arg.token) {
+    try {
+      let url = `https://elma-dev.certit.ru/api/extensions/7c1dbebe-2d99-4939-965e-d1134b12b37c/script/requeststoamo`;
+      // eslint-disable-next-line no-undef
+      const req = await fetch(url, {
+        method: "POST",
+        body: JSON.stringify({
+          id: arg.id,
+          url: `${arg.url}api/v4/${arg.essence}/custom_fields`,
+          token: arg.token,
+          method: "GET",
+          body: null,
+        }),
+      });
+
+      if (req.ok) {
+        const res = await req.json();
+        const customFieldArr: ICfAmo[] = res.body._embedded.custom_fields.filter(
+          (item: any) => item.is_api_only === false
+        );
+
+        result = customFieldArr;
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  return result;
+}
+
+export function wait(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }

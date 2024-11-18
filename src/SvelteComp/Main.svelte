@@ -18,12 +18,13 @@
     <SettingConnect />
   {/if}
   {#if $currentSetting === "elmaStrings"}
-    <ChooseApp />
-    <!-- <Settings /> -->
+    <ChooseApp system="elma" />
   {/if}
-
   {#if $currentSetting === "modifiers"}
     <Modifiers />
+  {/if}
+  {#if $currentSetting === "amoCrmStrings"}
+    <ChooseApp system="amoCRM" />
   {/if}
 </div>
 

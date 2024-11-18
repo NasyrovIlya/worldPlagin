@@ -1,8 +1,8 @@
 import { get } from "svelte/store";
-import type { ArrayClasses, EntityString, INameSpaceItems, TypesFields } from "../SvelteComp/types/interfaces";
+import type { ArrayClasses, EntityString, ICfAmo, INameSpaceItems, TypesFields } from "../SvelteComp/types/interfaces";
 import { globalStore, isLoad } from "../SvelteComp/Helper/global";
 import Field from "./FieldClass";
-import { parseNsAppString } from "../SvelteComp/Helper/helper";
+import { convertFieldType, parseNsAppString, proxyRequestToAmo, wait } from "../SvelteComp/Helper/helper";
 import { typeOfAppItemClass } from "../SvelteComp/Helper/const";
 
 export default class AppItemClass {
@@ -79,6 +79,79 @@ export default class AppItemClass {
         console.error("Error in getElmaStructure:", error);
         isLoad.set(false);
       }
+    } else {
+      try {
+        const { amo } = get(globalStore);
+
+        isLoad.set(true);
+
+
+        const leadFields = await proxyRequestToAmo({ ...amo, essence: "leads" });
+        await wait(500);
+        const contactFields = await proxyRequestToAmo({ ...amo, essence: "contacts" });
+        await wait(500);
+        const compainesFields = await proxyRequestToAmo({ ...amo, essence: "companies" });
+
+        const mainApp = new AppItemClass(`amoCrm`, "aмо CRM", "amoCRM");
+        const leadApp = new AppItemClass(`custom_fields`, "Сделки", "amoCRM", [], mainApp, "SYS_COLLECTION", true, 2);
+        const contactApp = new AppItemClass(`contact.custom_fields`, "Контакты", "amoCRM", [], mainApp, "SYS_COLLECTION", true, 2);
+        const companiesApp = new AppItemClass(`company.custom_fields`, "Компании", "amoCRM", [], mainApp, "SYS_COLLECTION", true, 2);
+
+        mainApp.items.push(leadApp);
+        mainApp.items.push(contactApp);
+        mainApp.items.push(companiesApp);
+
+        for (let index = 0; index < leadFields.length; index++) {
+          const element = leadFields[index];
+
+          if (element.entity_type === "leads") {
+            const newSubApp = new Field(
+              `${element.id}`,
+              element.name,
+              convertFieldType(element.type),
+              true,
+              leadApp,
+              element.enums ? element.enums.map((item: any) => ({ code: `${item.id}`, name: item.value })) : []
+            );
+            leadApp.items.push(newSubApp);
+          }
+        }
+
+        for (let index = 0; index < contactFields.length; index++) {
+          const element = contactFields[index];
+
+          const newSubApp = new Field(
+            `${element.id}`,
+            element.name,
+            convertFieldType(element.type),
+            true,
+            contactApp,
+            element.enums ? element.enums.map((item: any) => ({ code: `${item.id}`, name: item.value })) : []
+          );
+          contactApp.items.push(newSubApp);
+        }
+
+        for (let index = 0; index < compainesFields.length; index++) {
+          const element = compainesFields[index];
+
+          const newSubApp = new Field(
+            `${element.id}`,
+            element.name,
+            convertFieldType(element.type),
+            true,
+            companiesApp,
+            element.enums ? element.enums.map((item: any) => ({ code: `${item.id}`, name: item.value })) : []
+          );
+          companiesApp.items.push(newSubApp);
+        }
+
+        AppItemClass.allApps.push(mainApp);
+
+        isLoad.set(false);
+      } catch (error) {
+        console.error("Error in getAmoStructure:", error);
+        isLoad.set(false);
+      }
     }
   }
 
@@ -136,7 +209,11 @@ export default class AppItemClass {
   }
 
   getId(): string {
-    return Array.isArray(parseNsAppString(this.id)) ? parseNsAppString(this.id)[2] : this.id;
+    if (this.entity === "elma") {
+      return Array.isArray(parseNsAppString(this.id)) ? parseNsAppString(this.id)[2] : this.id;
+    } else {
+      return this.id;
+    }
   }
 
   getSampleString(): string {
@@ -205,27 +282,52 @@ export default class AppItemClass {
 
   getStringForApp(): string {
     let result = "";
-    const source = this.getSource();
-    const appId = this.getId();
-    const items = this.items.filter((item) => item instanceof Field && item._checked);
-    const openAppItems: AppItemClass[] = this.items
-      .filter((item) => item instanceof AppItemClass && item.isOpen)
-      .filter((item) => item instanceof AppItemClass);
 
-    if (items?.length > 0 || openAppItems?.length > 0) {
-      if (this.single) {
-        result = items.map((item) => `{{ ${source}.${appId}.${item.getId()} }}`).join(" ");
-        result = `${result} ${openAppItems.map((app) => app.getStringForApp()).join(" ")}`;
-      } else {
-        result = ` 
-            {% for ${appId} in ${source}.${appId} %}
-              ${items.map((item) => `{{ ${appId}.${item.getId()}${item instanceof Field ? `${item.getModificatorStrings()}` : ``} }}`).join(" ")}
-              ${openAppItems.map((app) => app.getStringForApp()).join(" ")}
-            {% endfor %}`;
+    if (this.entity === "elma") {
+      const source = this.getSource();
+      const appId = this.getId();
+      const items = this.items.filter((item) => item instanceof Field && item._checked);
+      const openAppItems: AppItemClass[] = this.items
+        .filter((item) => item instanceof AppItemClass && item.isOpen)
+        .filter((item) => item instanceof AppItemClass);
+
+      if (items?.length > 0 || openAppItems?.length > 0) {
+        if (this.single) {
+          result = items.map((item) => `{{ ${source}.${appId}.${item.getId()} }}`).join(" ");
+          result = `${result} ${openAppItems.map((app) => app.getStringForApp()).join(" ")}`;
+        } else {
+          result = ` 
+              {% for ${appId} in ${source}.${appId} %}
+                ${items.map((item) => `{{ ${appId}.${item.getId()}${item instanceof Field ? `${item.getModificatorStrings()}` : ``} }}`).join(" ")}
+                ${openAppItems.map((app) => app.getStringForApp()).join(" ")}
+              {% endfor %}`;
+        }
       }
-    }
 
-    return result;
+      return result;
+    } else {
+      const source = this.getSource();
+      const appId = this.getId();
+      const items = this.items.filter((item) => item instanceof Field && item._checked);
+      const openAppItems: AppItemClass[] = this.items
+        .filter((item) => item instanceof AppItemClass && item.isOpen)
+        .filter((item) => item instanceof AppItemClass);
+
+      if (items?.length > 0 || openAppItems?.length > 0) {
+        if (this.single) {
+          result = items.map((item) => `{{ ${source}.${appId}.${item.getId()} }}`).join(" ");
+          result = `${result} ${openAppItems.map((app) => app.getStringForApp()).join(" ")}`;
+        } else {
+          result = ` 
+              {% for ${appId} in ${source}.${appId} %}
+                ${items.map((item) => `{{ ${appId}.${item.getId()}${item instanceof Field ? `${item.getModificatorStrings()}` : ``} }}`).join(" ")}
+                ${openAppItems.map((app) => app.getStringForApp()).join(" ")}
+              {% endfor %}`;
+        }
+      }
+
+      return result;
+    }
   }
 
   _getStringFor(): string {
@@ -236,6 +338,9 @@ export default class AppItemClass {
       console.log(mainParent);
 
       result = mainParent[1].getStringForApp();
+    } else {
+      console.log(12);
+      
     }
 
     return result;

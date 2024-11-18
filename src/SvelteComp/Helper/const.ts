@@ -103,5 +103,5 @@ export const options: { label: string; value: string }[] = [
   { label: "Настройки соединения", value: "connect-settings" },
   { label: "Шаблонные строки из amoCRM", value: "amoCrmStrings" },
   { label: "Шаблонные строки из Elma", value: "elmaStrings" },
-  { label: "Модификаторы ЦД", value: "modifiers" }
+  { label: "Модификаторы ЦД", value: "modifiers" },
 ];

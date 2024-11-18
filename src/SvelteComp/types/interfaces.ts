@@ -60,10 +60,12 @@ export interface IGlobalStore {
   };
   amo: {
     url: string;
+    id: string;
+    token: string;
   };
   cd: {
     url: string;
-  }
+  };
 }
 
 export interface EnumField {
@@ -105,6 +107,25 @@ export enum ETypeOfFieldValue {
   "enum" = 4,
   "boolean" = 5,
 }
+
+export type TShablonTypeAmo =
+  | "text"
+  | "numeric"
+  | "checkbox"
+  | "select"
+  | "multiselect"
+  | "date"
+  | "url"
+  | "textarea"
+  | "radiobutton"
+  | "streetaddress"
+  | "smart_address"
+  | "birthday"
+  | "legal_entity"
+  | "date_time"
+  | "tracking_data"
+  | "file"
+  | "monetary";
 
 export interface IDropDownItem {
   id: any;
@@ -175,4 +196,16 @@ export interface IModifier {
   static: boolean;
   usage_example: string;
   showArguments?: boolean;
+}
+
+export interface ICfAmo {
+  account_id: number;
+  code: string;
+  entity_type: string;
+  enums: any;
+  hidden_statuses: any[];
+  id: number;
+  is_predefined: boolean;
+  name: string;
+  type: TShablonTypeAmo;
 }
