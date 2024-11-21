@@ -277,7 +277,7 @@ export function convertFieldType(amoTypeField: TShablonTypeAmo): TypesFields {
       case "file":
         return "FILE";
       case "legal_entity":
-        return "ENUM";
+        return "STRING";
       case "monetary":
         return "MONEY";
       case "multiselect":
@@ -289,7 +289,7 @@ export function convertFieldType(amoTypeField: TShablonTypeAmo): TypesFields {
       case "select":
         return "ENUM";
       case "smart_address":
-        return "ENUM";
+        return "STRING";
       case "streetaddress":
         return "STRING";
       case "text":

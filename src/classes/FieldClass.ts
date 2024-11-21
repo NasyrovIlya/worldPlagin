@@ -108,8 +108,7 @@ export default class Field {
     return result;
   }
 
-  // возвращает строку пути до поля, с прохождением всех родителей
-  getSampleString(onlyPath: boolean = false, isAllPath: boolean = true, modificators: boolean = true): string {
+  private getSampleStringElma(onlyPath: boolean = false, isAllPath: boolean = true, modificators: boolean = true): string {
     let result = this.id;
     let resultString: string = "";
     let parent: AppItemClass | undefined = this.parent;
@@ -118,16 +117,11 @@ export default class Field {
 
     while (parent) {
       if (parent) {
-        if (parent.entity === "elma") {
-          const checkId = parseNsAppString(parent.id);
+        const checkId = parseNsAppString(parent.id);
 
-          if (Array.isArray(checkId)) {
-            result = `${checkId[2]}.${result}`;
-            path.unshift(checkId[2]);
-          } else {
-            result = `${parent.id}.${result}`;
-            path.unshift(parent.id);
-          }
+        if (Array.isArray(checkId)) {
+          result = `${checkId[2]}.${result}`;
+          path.unshift(checkId[2]);
         } else {
           result = `${parent.id}.${result}`;
           path.unshift(parent.id);
@@ -138,10 +132,6 @@ export default class Field {
     }
 
     path.push(this.id);
-
-    if (this.parent.entity === "amoCRM") {
-      path.push("value");
-    }
 
     if (modificators) {
       modificatorsString = this.getModificatorStrings();
@@ -156,11 +146,101 @@ export default class Field {
 
       return onlyPath ? resultString : `{{ ${resultString} }}`;
     }
+  }
 
-    // if (onlyPath) {
-    //   return result;
+  private getSampleStringAmo(onlyPath: boolean = false, isAllPath: boolean = true, modificators: boolean = true): string {
+    let result = this.id;
+    let resultString: string = "";
+    let parent: AppItemClass | undefined = this.parent;
+    let modificatorsString: string = "";
+    const path: string[] = [];
+
+    while (parent) {
+      if (parent) {
+        result = `${parent.id}.${result}`;
+        path.unshift(parent.id);
+      }
+
+      parent = parent.parent;
+    }
+
+    path.push(this.id);
+
+    if (modificators) {
+      modificatorsString = this.getModificatorStrings();
+    }
+
+    if (this.single) {
+      path.push("value");
+
+      if (isAllPath) {
+        resultString = `${path.join(".")}${modificatorsString ? `${modificatorsString}` : ``}`;
+
+        return onlyPath ? resultString : `{{ ${resultString} }}`;
+      } else {
+        resultString = `${path.splice(1).join(".")}${modificatorsString ? `${modificatorsString}` : ``}`;
+
+        return onlyPath ? resultString : `{{ ${resultString} }}`;
+      }
+    } else {
+      resultString = `{% for key, value in ${path.splice(1).join(".")}["values"].items() %} {{ value${modificatorsString} }}{% endfor %}`;
+
+      return resultString;
+    }
+  }
+
+  // возвращает строку пути до поля, с прохождением всех родителей
+  getSampleString(onlyPath: boolean = false, isAllPath: boolean = true, modificators: boolean = true): string {
+    if (this.parent.entity === "amoCRM") {
+      return this.getSampleStringAmo(onlyPath, isAllPath, modificators);
+    } else {
+      return this.getSampleStringElma(onlyPath, isAllPath, modificators);
+    }
+    // let result = this.id;
+    // let resultString: string = "";
+    // let parent: AppItemClass | undefined = this.parent;
+    // let modificatorsString: string = "";
+    // const path: string[] = [];
+
+    // while (parent) {
+    //   if (parent) {
+    //     if (parent.entity === "elma") {
+    //       const checkId = parseNsAppString(parent.id);
+
+    //       if (Array.isArray(checkId)) {
+    //         result = `${checkId[2]}.${result}`;
+    //         path.unshift(checkId[2]);
+    //       } else {
+    //         result = `${parent.id}.${result}`;
+    //         path.unshift(parent.id);
+    //       }
+    //     } else {
+    //       result = `${parent.id}.${result}`;
+    //       path.unshift(parent.id);
+    //     }
+    //   }
+
+    //   parent = parent.parent;
+    // }
+
+    // path.push(this.id);
+
+    // if (this.parent.entity === "amoCRM") {
+    //   path.push("value");
+    // }
+
+    // if (modificators) {
+    //   modificatorsString = this.getModificatorStrings();
+    // }
+
+    // if (isAllPath) {
+    //   resultString = `${path.join(".")}${modificatorsString ? `${modificatorsString}` : ``}`;
+
+    //   return onlyPath ? resultString : `{{ ${resultString} }}`;
     // } else {
-    //   return `{{ ${result} }}`;
+    //   resultString = `${path.splice(1).join(".")}${modificatorsString ? `${modificatorsString}` : ``}`;
+
+    //   return onlyPath ? resultString : `{{ ${resultString} }}`;
     // }
   }
 
@@ -196,7 +276,7 @@ export default class Field {
     const mainObjArr = parent?.getPathToMain();
 
     if (mainObjArr && mainObjArr.length > 0) {
-      for (let index = 0; index < mainObjArr.length; index++) {
+      for (let index = 1; index < mainObjArr.length; index++) {
         const element = mainObjArr[index];
 
         if (element.single) {

@@ -81,7 +81,11 @@ export default class ConditionItemClass {
 
   getContextField(): { id: any; value: string }[] {
     if (this.field?.context.length) {
-      return this.field?.context.map((item: any) => ({ id: item.name, value: item.name }));
+      if (this.field?.parent.entity === "elma") {
+        return this.field?.context.map((item: any) => ({ id: item.name, value: item.name }));
+      } else {
+        return this.field?.context.map((item: any) => ({ id: item.code, value: item.name }));
+      }
     }
     return [];
   }
@@ -92,21 +96,22 @@ export default class ConditionItemClass {
     this.value = "";
   }
 
-  getConditionObject(): IConditionObject {
+  private getConditionObjectElma(): IConditionObject {
     const condition = this.condition;
     let fieldPath = "";
-
-    if (this.field) {
-      if (this.field.isParentSingle()) {
-        fieldPath = this.field.getSampleString(true, false, false);
-      } else {
-        fieldPath = `${this.field.parent.getId()}.${this.field.getId()}`;
-      }
-    }
-
     let conditionIcon: string = "";
     let conditionString: string = "";
     let value = `"${this.value}"`;
+
+    if (this.field) {
+      const field = this.field;
+
+      if (field.isParentSingle()) {
+        fieldPath = field.getSampleString(true, false, false);
+      } else {
+        fieldPath = `${field.parent.getId()}.${this.field.getId()}`;
+      }
+    }
 
     switch (condition) {
       case "Equals":
@@ -129,6 +134,7 @@ export default class ConditionItemClass {
         break;
       case "None":
         conditionIcon = "not in";
+        value = `[${this.value.map((item: any) => `"${item}"`).join(", ")}]`;
         break;
       case "OneOf":
         conditionIcon = "in";
@@ -150,5 +156,84 @@ export default class ConditionItemClass {
     };
 
     return result;
+  }
+
+  private getConditionObjectAmo(): IConditionObject {
+    const condition = this.condition;
+    let fieldPath = "";
+    let conditionIcon: string = "";
+    let conditionString: string = "";
+    let value = `"${this.value}"`;
+
+    if (this.field) {
+      const field = this.field;
+
+      fieldPath = `${field.parent.getId()}.${this.field.getId()}`;
+    }
+
+    switch (condition) {
+      case "Equals":
+        conditionIcon = "==";
+        conditionString = `${fieldPath} ${conditionIcon} ${value}`;
+        break;
+      case "GreateOrEqual":
+        conditionIcon = ">=";
+        conditionString = `${fieldPath} ${conditionIcon} ${value}`;
+        break;
+      case "Less":
+        conditionIcon = "<";
+        conditionString = `${fieldPath} ${conditionIcon} ${value}`;
+        break;
+      case "LessOrEqual":
+        conditionIcon = "<=";
+        conditionString = `${fieldPath} ${conditionIcon} ${value}`;
+        break;
+      case "More":
+        conditionIcon = ">";
+        conditionString = `${fieldPath} ${conditionIcon} ${value}`;
+        break;
+      case "NoEquals":
+        conditionIcon = "!=";
+        conditionString = `${fieldPath} ${conditionIcon} ${value}`;
+        break;
+      case "None":
+        conditionIcon = "not in";
+        value = `${this.value.map((item: any) => `${item} ${conditionIcon} ${fieldPath}['values']`).join(" and ")}`;
+        conditionString = `${fieldPath} or (${value})`;
+        break;
+      case "OneOf":
+        conditionIcon = "in";
+        value = `${this.value.map((item: any) => `${item} ${conditionIcon} ${fieldPath}['values']`).join(" or ")}`;
+        conditionString = `${fieldPath} and (${value})`;
+        break;
+      default:
+        conditionIcon = "==";
+        conditionString = `${fieldPath} ${conditionIcon} ${value}`;
+        break;
+    }
+
+    const result = {
+      fieldPath,
+      conditionIcon,
+      value: this.value,
+      betweenConditions: this.betweenConditions,
+      conditionString,
+    };
+
+    return result;
+  }
+
+  getConditionObject(): IConditionObject {
+    if (this.field) {
+      const field = this.field;
+
+      if (field.parent.entity === "elma") {
+        return this.getConditionObjectElma();
+      } else {
+        return this.getConditionObjectAmo();
+      }
+    } else {
+      return this.getConditionObjectElma();
+    }
   }
 }

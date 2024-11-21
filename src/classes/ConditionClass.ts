@@ -76,9 +76,7 @@ export default class ConditionClass {
       });
     }
 
-    result = `{% if ${result} %}Введите необходимый текст{% endif %}`;
-
-    return result;
+    return `{% if ${result} %}Введите необходимый текст{% endif %}`;
   }
 
   static validateConditions(mainApp: AppItemClass): boolean {
