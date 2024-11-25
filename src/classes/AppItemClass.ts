@@ -321,22 +321,28 @@ export default class AppItemClass {
     this._checked = this.items.filter((item) => item._checked).length > 0;
   }
 
-  getSource(): string {
+  getSource(getAll: boolean = false): string {
+    console.log(this);
     let result: string = "";
 
     const parent = this.parent;
-    const mainObjArr = parent?.getPathToMain();
 
-    if (mainObjArr && mainObjArr.length > 0) {
-      for (let index = 1; index < mainObjArr.length; index++) {
-        const element = mainObjArr[index];
+    if (parent?.entity === "elma") {
+      const mainObjArr = parent?.getPathToMain();
 
-        if (element.single) {
-          result = result ? `${result}.${element.getId()}` : element.getId();
-        } else {
-          result = element.getId();
+      if (mainObjArr && mainObjArr.length > 0) {
+        for (let index = 1; index < mainObjArr.length; index++) {
+          const element = mainObjArr[index];
+
+          if (element.single) {
+            result = result ? `${result}.${element.getId()}` : element.getId();
+          } else {
+            result = element.getId();
+          }
         }
       }
+    } else {
+
     }
 
     return result;
@@ -357,7 +363,9 @@ export default class AppItemClass {
 
       if (items?.length > 0 || openAppItems?.length > 0) {
         if (this.single) {
-          result = items.map((item) => `{{ ${source}.${appId}.${item.getId()} }}`).join(" ");
+          result = items
+            .map((item) => `{{ ${source}.${appId}.${item.getId()}${item.getModificatorStrings()} }}`)
+            .join(" ");
           result = `${result} ${openAppItems.map((app) => app.getStringForApp()).join(" ")}`;
         } else {
           result = ` 
@@ -381,12 +389,12 @@ export default class AppItemClass {
 
       if (items?.length > 0 || openAppItems?.length > 0) {
         if (this.single) {
-          result = items.map((item) => `{{ ${item.getId()}.value }}`).join(" ");
+          result = items.map((item) => `{{ ${item.getId()}.value${item.getModificatorStrings()} }}`).join(" ");
           result = `${result} ${openAppItems.map((app) => app.getStringForApp()).join(" ")}`;
         } else {
           result = ` 
               {% for ${appId} in ${appId} %}
-                ${items.map((item) => `{{ ${item.getSampleString(true, false, false)}${item.getModificatorStrings()} }}`).join(" ")}
+                ${items.map((item) => `{{ ${appId}.${item.getSampleString(true, false, false)}${item.getModificatorStrings()} }}`).join(" ")}
                 ${openAppItems.map((app) => app.getStringForApp()).join(" ")}
               {% endfor %}`;
         }

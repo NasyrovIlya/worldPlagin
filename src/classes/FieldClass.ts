@@ -108,7 +108,11 @@ export default class Field {
     return result;
   }
 
-  private getSampleStringElma(onlyPath: boolean = false, isAllPath: boolean = true, modificators: boolean = true): string {
+  private getSampleStringElma(
+    onlyPath: boolean = false,
+    isAllPath: boolean = true,
+    modificators: boolean = true
+  ): string {
     let result = this.id;
     let resultString: string = "";
     let parent: AppItemClass | undefined = this.parent;
@@ -148,16 +152,21 @@ export default class Field {
     }
   }
 
-  private getSampleStringAmo(onlyPath: boolean = false, isAllPath: boolean = true, modificators: boolean = true): string {
-    let result = this.id;
+  private getSampleStringAmo(
+    onlyPath: boolean = false,
+    isAllPath: boolean = true,
+    modificators: boolean = true
+  ): string {
+    //TODO переделать генерацию шаблонных строк, чтобы вне зависимост от места вызова, генерировался корректный источник поля
+    // либо исходя из выбранных параметров генерировать ту или иную шаблонную строку
     let resultString: string = "";
     let parent: AppItemClass | undefined = this.parent;
     let modificatorsString: string = "";
     const path: string[] = [];
+    console.log(this.getSource());
 
     while (parent) {
       if (parent) {
-        result = `${parent.id}.${result}`;
         path.unshift(parent.id);
       }
 

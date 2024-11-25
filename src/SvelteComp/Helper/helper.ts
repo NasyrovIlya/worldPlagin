@@ -2,7 +2,14 @@
 import { get } from "svelte/store";
 import AppItemClass from "../../classes/AppItemClass";
 import Field from "../../classes/FieldClass";
-import type { IAppItems, ICfAmo, IResponceModifier, TConditionString, TShablonTypeAmo, TypesFields } from "../types/interfaces";
+import type {
+  IAppItems,
+  ICfAmo,
+  IResponceModifier,
+  TConditionString,
+  TShablonTypeAmo,
+  TypesFields,
+} from "../types/interfaces";
 import { dictionaryTerms } from "./const";
 import { globalStore, isLoad, modifiersResp } from "./global";
 

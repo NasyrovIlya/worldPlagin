@@ -109,7 +109,7 @@ export default class ConditionItemClass {
       if (field.isParentSingle()) {
         fieldPath = field.getSampleString(true, false, false);
       } else {
-        fieldPath = `${field.parent.getId()}.${this.field.getId()}`;
+        fieldPath = `${field.getSource()}.${this.field.getId()}`;
       }
     }
 
@@ -199,7 +199,7 @@ export default class ConditionItemClass {
       case "None":
         conditionIcon = "not in";
         value = `${this.value.map((item: any) => `${item} ${conditionIcon} ${fieldPath}['values']`).join(" and ")}`;
-        conditionString = `${fieldPath} or (${value})`;
+        conditionString = `not ${fieldPath} or (${value})`;
         break;
       case "OneOf":
         conditionIcon = "in";
