@@ -163,7 +163,7 @@ export default class Field {
     let parent: AppItemClass | undefined = this.parent;
     let modificatorsString: string = "";
     const path: string[] = [];
-    console.log(this.getSource());
+    const source = this.getSource();
 
     while (parent) {
       if (parent) {
@@ -183,16 +183,16 @@ export default class Field {
       path.push("value");
 
       if (isAllPath) {
-        resultString = `${path.join(".")}${modificatorsString ? `${modificatorsString}` : ``}`;
+        resultString = `${path.join(".")}${modificatorsString}`;
 
         return onlyPath ? resultString : `{{ ${resultString} }}`;
       } else {
-        resultString = `${path.splice(1).join(".")}${modificatorsString ? `${modificatorsString}` : ``}`;
+        resultString = `${source}.${this.id}.value${modificatorsString}`;
 
         return onlyPath ? resultString : `{{ ${resultString} }}`;
       }
     } else {
-      resultString = `{% for key, value in ${path.splice(1).join(".")}["values"].items() %} {{ value${modificatorsString} }}{% endfor %}`;
+      resultString = `{% for key, value in ${source}.${this.id}["values"].items() %} {{ value${modificatorsString} }}{% endfor %}`;
 
       return resultString;
     }

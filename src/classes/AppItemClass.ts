@@ -132,7 +132,7 @@ export default class AppItemClass {
             3
           );
           const contactAppBase = new AppItemClass(
-            `contacts`,
+            `contacts.contact`,
             "Контакты",
             "amoCRM",
             [],
@@ -274,7 +274,7 @@ export default class AppItemClass {
     if (this.entity === "elma") {
       return Array.isArray(parseNsAppString(this.id)) ? parseNsAppString(this.id)[2] : this.id;
     } else {
-      return this.id;
+      return Array.isArray(parseNsAppString(this.id)) ? parseNsAppString(this.id)[1] : this.id;
     }
   }
 
@@ -379,7 +379,8 @@ export default class AppItemClass {
       return result;
     } else {
       const source = this.getSource();
-      const appId = this.getId();
+      const appId = Array.isArray(parseNsAppString(this.id)) ? parseNsAppString(this.id)[0] : this.id;
+      const alias = this.getId();
       const items = this.items
         .filter((item) => item instanceof Field && item._checked)
         .filter((item) => item instanceof Field);
@@ -389,12 +390,12 @@ export default class AppItemClass {
 
       if (items?.length > 0 || openAppItems?.length > 0) {
         if (this.single) {
-          result = items.map((item) => `{{ ${item.getId()}.value${item.getModificatorStrings()} }}`).join(" ");
+          result = items.map((item) => `${item.getSampleString(false, false, true)}`).join(" ");
           result = `${result} ${openAppItems.map((app) => app.getStringForApp()).join(" ")}`;
         } else {
           result = ` 
-              {% for ${appId} in ${appId} %}
-                ${items.map((item) => `{{ ${appId}.${item.getSampleString(true, false, false)}${item.getModificatorStrings()} }}`).join(" ")}
+              {% for ${alias} in ${appId} %}
+                ${items.map((item) => `${item.getSampleString(false, false, true)}`).join(" ")}
                 ${openAppItems.map((app) => app.getStringForApp()).join(" ")}
               {% endfor %}`;
         }
