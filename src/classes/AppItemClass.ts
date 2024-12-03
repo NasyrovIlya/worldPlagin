@@ -369,8 +369,8 @@ export default class AppItemClass {
           result = `${result} ${openAppItems.map((app) => app.getStringForApp()).join(" ")}`;
         } else {
           result = ` 
-              {% for ${appId} in ${source}.${appId} %}
-                ${items.map((item) => `{{ ${appId}.${item.getId()}${item.getModificatorStrings()} }}`).join(" ")}
+              {% for ${appId}_value in ${source}.${appId} %}
+                ${items.map((item) => `{{ ${appId}_value.${item.getId()}${item.getModificatorStrings()} }}`).join(" ")}
                 ${openAppItems.map((app) => app.getStringForApp()).join(" ")}
               {% endfor %}`;
         }

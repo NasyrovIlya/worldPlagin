@@ -157,8 +157,6 @@ export default class Field {
     isAllPath: boolean = true,
     modificators: boolean = true
   ): string {
-    //TODO переделать генерацию шаблонных строк, чтобы вне зависимост от места вызова, генерировался корректный источник поля
-    // либо исходя из выбранных параметров генерировать ту или иную шаблонную строку
     let resultString: string = "";
     let parent: AppItemClass | undefined = this.parent;
     let modificatorsString: string = "";

@@ -109,7 +109,7 @@ export default class ConditionItemClass {
       if (field.isParentSingle()) {
         fieldPath = field.getSampleString(true, false, false);
       } else {
-        fieldPath = `${field.getSource()}.${this.field.getId()}`;
+        fieldPath = `${field.getSource()}_value.${this.field.getId()}`;
       }
     }
 
