@@ -9,8 +9,8 @@
   function testConntectionElma() {
     $globalStore.elma.getFieldsApp = "getFieldsApp";
     $globalStore.elma.getStructureApp = "getStructureApp";
-    $globalStore.elma.idIntegration = `7c1dbebe-2d99-4939-965e-d1134b12b37c`;
-    $globalStore.elma.url = `https://elma-dev.certit.ru/`;
+    //$globalStore.elma.idIntegration = `7c1dbebe-2d99-4939-965e-d1134b12b37c`;
+    //$globalStore.elma.url = `https://elma-dev.certit.ru/`;
 
     currentSetting.set("elmaStrings");
   }
